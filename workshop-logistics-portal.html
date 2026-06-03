@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workshop Logistics Portal</title>
+<style>
+  :root {
+    --bg: #eceef1;
+    --panel: #ffffff;
+    --ink: #1f2933;
+    --muted: #5b6772;
+    --line: #cbd2d9;
+    --accent: #2f5d8a;
+    --ready: #2f7a4d;
+    --ready-bg: #e3f3e8;
+    --warn: #8a5a00;
+    --warn-bg: #fbf0d9;
+    --bad: #9c2a2a;
+    --bad-bg: #f7dede;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  header.site {
+    background: #243b53;
+    color: #fff;
+    padding: 16px 20px;
+    border-bottom: 3px solid var(--accent);
+  }
+  header.site h1 { margin: 0; font-size: 18px; font-weight: 600; }
+  header.site p { margin: 4px 0 0; font-size: 13px; color: #c2cdd9; }
+  main { max-width: 1080px; margin: 0 auto; padding: 18px 20px 40px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  h2 { font-size: 15px; margin: 0 0 10px; color: var(--accent); }
+  table.context { width: 100%; border-collapse: collapse; }
+  table.context th, table.context td {
+    text-align: left;
+    padding: 5px 10px 5px 0;
+    vertical-align: top;
+    font-size: 13px;
+  }
+  table.context th {
+    width: 180px;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .card {
+    flex: 1 1 150px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 12px 14px;
+  }
+  .card .num { font-size: 26px; font-weight: 700; line-height: 1; }
+  .card .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .card.exceptions .num { color: var(--bad); }
+  .card.high .num { color: var(--warn); }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .filters button {
+    font: inherit;
+    padding: 7px 13px;
+    background: #f4f6f8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .filters button:hover { background: #e7ebef; }
+  .filters button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .explainer {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 16px;
+    padding-left: 12px;
+    border-left: 3px solid var(--line);
+  }
+  table.items { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.items caption {
+    text-align: left;
+    font-weight: 600;
+    color: var(--accent);
+    padding-bottom: 8px;
+    font-size: 15px;
+  }
+  table.items th, table.items td {
+    border: 1px solid var(--line);
+    padding: 7px 9px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.items thead th { background: #f0f3f6; color: var(--muted); white-space: nowrap; }
+  table.items tbody tr { cursor: pointer; background: var(--panel); }
+  table.items tbody tr:hover { background: #f3f7fb; }
+  table.items tbody tr.selected { background: #e6eff7; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-ready { background: var(--ready-bg); color: var(--ready); }
+  .badge-delayed { background: var(--bad-bg); color: var(--bad); }
+  .badge-in-transit { background: var(--warn-bg); color: var(--warn); }
+  .badge-delivery-attempted { background: var(--warn-bg); color: var(--warn); }
+  .badge-pending-confirmation { background: var(--warn-bg); color: var(--warn); }
+  .impact-high { color: var(--bad); font-weight: 600; }
+  .impact-medium { color: var(--warn); font-weight: 600; }
+  .impact-low { color: var(--muted); }
+  .is-hidden { display: none; }
+  .detail dl { margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 4px 12px; }
+  .detail dt { color: var(--muted); font-weight: 600; }
+  .detail dd { margin: 0; }
+  .summary-panel textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 8px;
+    background: #fbfcfd;
+    color: var(--ink);
+    resize: vertical;
+  }
+  .callout {
+    background: #fff8e6;
+    border: 1px solid #f0d98c;
+    border-left: 4px solid var(--warn);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #6b4e00;
+  }
+  footer.site {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  footer.site a { color: var(--accent); font-weight: 600; }
+  footer.site .demo-note {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <h1>Workshop Logistics Portal</h1>
+  <p>Internal operations view &middot; read-only &middot; browser-automation training demo</p>
+</header>
+
+<main>
+  <section class="panel" aria-label="Workshop context">
+    <h2>Workshop context</h2>
+    <table class="context">
+      <tbody>
+        <tr><th>Workshop</th><td>Project Atlas client workshop</td></tr>
+        <tr><th>Venue</th><td>Training Room 2, ground floor</td></tr>
+        <tr><th>Workshop start</th><td>1:00 PM</td></tr>
+        <tr><th>Setup deadline</th><td>12:00 PM</td></tr>
+        <tr><th>Portal last updated</th><td>9:30 AM</td></tr>
+        <tr><th>Coordinator</th><td>Workshop coordinator (role)</td></tr>
+        <tr><th>Automation note</th><td>No API, export, or workflow connector available to this team.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="cards">
+    <div class="card"><div class="num">7</div><div class="lbl">Total items</div></div>
+    <div class="card"><div class="num">3</div><div class="lbl">Ready</div></div>
+    <div class="card exceptions"><div class="num">4</div><div class="lbl">Exceptions</div></div>
+    <div class="card high"><div class="num">1</div><div class="lbl">High impact</div></div>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filter logistics items">
+    <button id="filter-all" data-automation="filter-all" data-filter="all" class="active">All items</button>
+    <button id="filter-ready" data-automation="filter-ready" data-filter="ready">Ready only</button>
+    <button id="filter-exceptions" data-automation="filter-exceptions" data-filter="exceptions">Exceptions only</button>
+    <button id="filter-high-impact" data-automation="filter-high-impact" data-filter="high-impact">High impact only</button>
+    <button id="filter-due-before-setup" data-automation="filter-due-before-setup" data-filter="due-before-setup">Due before setup</button>
+  </div>
+
+  <p class="explainer">
+    Exception rows include delayed items, attempted delivery, pending
+    confirmation, or items where ETA is close to the required time.
+  </p>
+
+  <table class="items" id="logistics-items" data-automation="logistics-items">
+    <caption>Logistics items</caption>
+    <thead>
+      <tr>
+        <th>Item</th><th>Type</th><th>Ref</th><th>Status</th>
+        <th>ETA / update</th><th>Required by</th><th>Impact</th>
+        <th>Owner</th><th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="logistics-rows" data-automation="logistics-rows">
+      <tr id="row-demo-tablet" data-automation="logistics-row"
+          data-status="ready" data-impact="low" data-due-before-setup="false"
+          data-item="Demo tablet" data-ref="EQ-10490" data-owner="Coordinator"
+          data-eta="Checked 9:05 AM" data-required-by="12:00 PM"
+          data-notes="Charged and placed with demo kit">
+        <td>Demo tablet</td><td>Equipment</td><td>EQ-10490</td>
+        <td><span class="badge badge-ready">Ready</span></td>
+        <td>Checked 9:05 AM</td><td>12:00 PM</td>
+        <td><span class="impact-low">Low</span></td>
+        <td>Coordinator</td><td>Charged and placed with demo kit</td>
+      </tr>
+      <tr id="row-backup-laptop" data-automation="logistics-row"
+          data-status="ready" data-impact="low" data-due-before-setup="false"
+          data-item="Backup laptop" data-ref="EQ-10491" data-owner="AV support"
+          data-eta="Checked 9:10 AM" data-required-by="12:00 PM"
+          data-notes="Logged in with test account">
+        <td>Backup laptop</td><td>Equipment</td><td>EQ-10491</td>
+        <td><span class="badge badge-ready">Ready</span></td>
+        <td>Checked 9:10 AM</td><td>12:00 PM</td>
+        <td><span class="impact-low">Low</span></td>
+        <td>AV support</td><td>Logged in with test account</td>
+      </tr>
+      <tr id="row-wifi-guest-access" data-automation="logistics-row"
+          data-status="ready" data-impact="medium" data-due-before-setup="false"
+          data-item="Wi-Fi guest access" data-ref="AC-10492" data-owner="Office admin"
+          data-eta="Confirmed 8:55 AM" data-required-by="12:00 PM"
+          data-notes="Guest network active">
+        <td>Wi-Fi guest access</td><td>Access</td><td>AC-10492</td>
+        <td><span class="badge badge-ready">Ready</span></td>
+        <td>Confirmed 8:55 AM</td><td>12:00 PM</td>
+        <td><span class="impact-medium">Medium</span></td>
+        <td>Office admin</td><td>Guest network active</td>
+      </tr>
+      <tr id="row-hdmi-adapter" data-automation="logistics-row"
+          data-status="exception" data-impact="high" data-due-before-setup="true"
+          data-item="HDMI adapter" data-ref="EQ-10493" data-owner="AV support"
+          data-eta="ETA 11:45 AM" data-required-by="11:30 AM"
+          data-notes="Needed before room setup check">
+        <td>HDMI adapter</td><td>Equipment</td><td>EQ-10493</td>
+        <td><span class="badge badge-delayed">Delayed</span></td>
+        <td>ETA 11:45 AM</td><td>11:30 AM</td>
+        <td><span class="impact-high">High</span></td>
+        <td>AV support</td><td>Needed before room setup check</td>
+      </tr>
+      <tr id="row-printed-handouts" data-automation="logistics-row"
+          data-status="exception" data-impact="medium" data-due-before-setup="true"
+          data-item="Printed handouts" data-ref="PR-10494" data-owner="Coordinator"
+          data-eta="ETA 12:15 PM" data-required-by="12:00 PM"
+          data-notes="May arrive after setup deadline">
+        <td>Printed handouts</td><td>Print</td><td>PR-10494</td>
+        <td><span class="badge badge-in-transit">In transit</span></td>
+        <td>ETA 12:15 PM</td><td>12:00 PM</td>
+        <td><span class="impact-medium">Medium</span></td>
+        <td>Coordinator</td><td>May arrive after setup deadline</td>
+      </tr>
+      <tr id="row-sponsor-pack" data-automation="logistics-row"
+          data-status="exception" data-impact="medium" data-due-before-setup="false"
+          data-item="Sponsor pack" data-ref="DL-10495" data-owner="Office admin"
+          data-eta="Attempted 9:10 AM" data-required-by="12:00 PM"
+          data-notes="Needs collection or re-delivery check">
+        <td>Sponsor pack</td><td>Delivery</td><td>DL-10495</td>
+        <td><span class="badge badge-delivery-attempted">Delivery attempted</span></td>
+        <td>Attempted 9:10 AM</td><td>12:00 PM</td>
+        <td><span class="impact-medium">Medium</span></td>
+        <td>Office admin</td><td>Needs collection or re-delivery check</td>
+      </tr>
+      <tr id="row-catering-confirmation" data-automation="logistics-row"
+          data-status="exception" data-impact="medium" data-due-before-setup="true"
+          data-item="Catering confirmation" data-ref="CT-10496" data-owner="Coordinator"
+          data-eta="Awaiting confirmation" data-required-by="11:00 AM"
+          data-notes="Confirm dietary count before 10:30 AM">
+        <td>Catering confirmation</td><td>Catering</td><td>CT-10496</td>
+        <td><span class="badge badge-pending-confirmation">Pending confirmation</span></td>
+        <td>Awaiting confirmation</td><td>11:00 AM</td>
+        <td><span class="impact-medium">Medium</span></td>
+        <td>Coordinator</td><td>Confirm dietary count before 10:30 AM</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <section class="panel summary-panel" style="margin-top:18px;" aria-label="Plain-text view of currently visible rows">
+    <h2>Plain-text view of currently visible rows</h2>
+    <p class="explainer" style="margin-bottom:8px;">
+      Generated from the rows currently visible in the table above &mdash; not
+      from an API or export. Useful as a fallback copy target for automation.
+    </p>
+    <label for="visible-exception-summary" style="display:none;">Plain-text view of currently visible rows</label>
+    <textarea id="visible-exception-summary" data-automation="visible-exception-summary" readonly></textarea>
+  </section>
+
+  <section class="panel detail" id="item-detail-panel" data-automation="item-detail-panel" aria-label="Item details">
+    <h2>Item details</h2>
+    <dl>
+      <dt>Item</dt><dd id="detail-item"></dd>
+      <dt>Ref</dt><dd id="detail-ref"></dd>
+      <dt>Status</dt><dd id="detail-status"></dd>
+      <dt>ETA / update</dt><dd id="detail-eta"></dd>
+      <dt>Required by</dt><dd id="detail-required-by"></dd>
+      <dt>Impact</dt><dd id="detail-impact"></dd>
+      <dt>Owner</dt><dd id="detail-owner"></dd>
+      <dt>Notes</dt><dd id="detail-notes"></dd>
+    </dl>
+  </section>
+
+  <div class="callout" role="note">
+    Do not copy delivery addresses, phone numbers, or supplier contact details
+    into team updates.
+  </div>
+</main>
+
+<footer class="site">
+  <a id="open-team-update-draft" data-automation="open-team-update-draft"
+     href="team-update-draft.html">Open Team Update Draft</a>
+  <div class="demo-note">
+    Demo data only. No real client, supplier, staff, address, or contact details
+    are used.
+  </div>
+</footer>
+
+<script>
+  (function () {
+    "use strict";
+
+    var rows = Array.prototype.slice.call(
+      document.querySelectorAll("#logistics-rows tr")
+    );
+    var filterButtons = Array.prototype.slice.call(
+      document.querySelectorAll(".filters button")
+    );
+    var summary = document.getElementById("visible-exception-summary");
+
+    function matchesFilter(row, filter) {
+      switch (filter) {
+        case "ready": return row.dataset.status === "ready";
+        case "exceptions": return row.dataset.status === "exception";
+        case "high-impact": return row.dataset.impact === "high";
+        case "due-before-setup": return row.dataset.dueBeforeSetup === "true";
+        case "all":
+        default: return true;
+      }
+    }
+
+    function updateSummary() {
+      var lines = ["Item | Ref | Status | ETA / update | Required by | Impact | Owner"];
+      rows.forEach(function (row) {
+        if (row.hidden) { return; }
+        var statusText = row.querySelector(".badge").textContent;
+        var impactText = row.querySelector("[class^='impact-']").textContent;
+        lines.push([
+          row.dataset.item,
+          row.dataset.ref,
+          statusText,
+          row.dataset.eta,
+          row.dataset.requiredBy,
+          impactText,
+          row.dataset.owner
+        ].join(" | "));
+      });
+      summary.value = lines.join("\n");
+    }
+
+    function applyFilter(filter) {
+      rows.forEach(function (row) {
+        var shouldHide = !matchesFilter(row, filter);
+        row.hidden = shouldHide;
+        row.classList.toggle("is-hidden", shouldHide);
+        row.setAttribute("aria-hidden", String(shouldHide));
+      });
+      updateSummary();
+    }
+
+    filterButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        filterButtons.forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        applyFilter(btn.dataset.filter);
+      });
+    });
+
+    var detailFields = {
+      item: document.getElementById("detail-item"),
+      ref: document.getElementById("detail-ref"),
+      status: document.getElementById("detail-status"),
+      eta: document.getElementById("detail-eta"),
+      requiredBy: document.getElementById("detail-required-by"),
+      impact: document.getElementById("detail-impact"),
+      owner: document.getElementById("detail-owner"),
+      notes: document.getElementById("detail-notes")
+    };
+
+    function showDetails(row) {
+      rows.forEach(function (r) { r.classList.remove("selected"); });
+      row.classList.add("selected");
+      // textContent only — never innerHTML — so notes render as literal text.
+      detailFields.item.textContent = row.dataset.item;
+      detailFields.ref.textContent = row.dataset.ref;
+      detailFields.status.textContent = row.querySelector(".badge").textContent;
+      detailFields.eta.textContent = row.dataset.eta;
+      detailFields.requiredBy.textContent = row.dataset.requiredBy;
+      detailFields.impact.textContent = row.querySelector("[class^='impact-']").textContent;
+      detailFields.owner.textContent = row.dataset.owner;
+      detailFields.notes.textContent = row.dataset.notes;
+    }
+
+    rows.forEach(function (row) {
+      row.addEventListener("click", function () { showDetails(row); });
+    });
+
+    // Initial state: all rows visible, HDMI adapter pre-selected in details.
+    applyFilter("all");
+    showDetails(document.getElementById("row-hdmi-adapter"));
+  })();
+</script>
+
+</body>
+</html>
