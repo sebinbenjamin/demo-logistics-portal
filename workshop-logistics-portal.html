@@ -144,11 +144,13 @@
     font-weight: 600;
     white-space: nowrap;
   }
+  /* Allowed status vocabulary: Ready, Confirmed, At risk, Pending, Delayed, Blocked. */
   .badge-ready { background: var(--ready-bg); color: var(--ready); }
+  .badge-confirmed { background: var(--ready-bg); color: var(--ready); }
+  .badge-at-risk { background: var(--warn-bg); color: var(--warn); }
+  .badge-pending { background: var(--warn-bg); color: var(--warn); }
   .badge-delayed { background: var(--bad-bg); color: var(--bad); }
-  .badge-in-transit { background: var(--warn-bg); color: var(--warn); }
-  .badge-delivery-attempted { background: var(--warn-bg); color: var(--warn); }
-  .badge-pending-confirmation { background: var(--warn-bg); color: var(--warn); }
+  .badge-blocked { background: var(--bad-bg); color: var(--bad); }
   /* Impact colour applies to the badge text in cells only, so the matching
      row-level filter classes (.impact-high etc.) don't recolour whole rows. */
   td .impact-high { color: var(--bad); font-weight: 600; }
@@ -214,8 +216,8 @@
   </div>
 
   <p class="explainer">
-    Exception rows include delayed items, attempted delivery, pending
-    confirmation, or items that may affect the setup deadline.
+    Exception rows include delayed, blocked, at risk, or pending items, or
+    items that may affect the setup deadline.
   </p>
 
   <p id="view-state" class="view-state"></p>
@@ -265,21 +267,21 @@
       </tr>
       <tr id="row-printed-handouts" class="item-row status-exception impact-medium due-risk">
         <td>Printed handouts</td><td>Print</td><td>PR-10494</td>
-        <td><span class="badge badge-in-transit">In transit</span></td>
+        <td><span class="badge badge-at-risk">At risk</span></td>
         <td>ETA 12:15 PM</td><td>12:00 PM</td>
         <td><span class="impact-medium">Medium</span></td>
         <td>Coordinator</td><td>May arrive after setup deadline</td>
       </tr>
       <tr id="row-sponsor-pack" class="item-row status-exception impact-medium">
         <td>Sponsor pack</td><td>Delivery</td><td>DL-10495</td>
-        <td><span class="badge badge-delivery-attempted">Delivery attempted</span></td>
+        <td><span class="badge badge-blocked">Blocked</span></td>
         <td>Attempted 9:10 AM</td><td>12:00 PM</td>
         <td><span class="impact-medium">Medium</span></td>
         <td>Office admin</td><td>Needs collection or re-delivery check</td>
       </tr>
       <tr id="row-catering-confirmation" class="item-row status-exception impact-medium due-risk">
         <td>Catering confirmation</td><td>Catering</td><td>CT-10496</td>
-        <td><span class="badge badge-pending-confirmation">Pending confirmation</span></td>
+        <td><span class="badge badge-pending">Pending</span></td>
         <td>Awaiting confirmation</td><td>11:00 AM</td>
         <td><span class="impact-medium">Medium</span></td>
         <td>Coordinator</td><td>Confirm dietary count before 10:30 AM</td>
