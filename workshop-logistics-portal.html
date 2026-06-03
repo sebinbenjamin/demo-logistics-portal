@@ -93,6 +93,31 @@
     padding-left: 12px;
     border-left: 3px solid var(--line);
   }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 8px;
+  }
+  .view-state {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .pill {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    background: #f4f6f8;
+    vertical-align: middle;
+  }
   table.items { width: 100%; border-collapse: collapse; font-size: 13px; }
   table.items caption {
     text-align: left;
@@ -130,17 +155,16 @@
   td .impact-medium { color: var(--warn); font-weight: 600; }
   td .impact-low { color: var(--muted); }
   .is-hidden { display: none; }
-  .detail dl { margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 4px 12px; }
-  .detail dt { color: var(--muted); font-weight: 600; }
+  .detail dl { margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 3px 12px; }
+  .detail dt { color: var(--muted); font-weight: 600; font-size: 12px; }
   .detail dd { margin: 0; }
-  .callout {
-    background: #fff8e6;
-    border: 1px solid #f0d98c;
-    border-left: 4px solid var(--warn);
+  .note {
+    background: #f7f8fa;
+    border: 1px solid var(--line);
     border-radius: 3px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #6b4e00;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--muted);
   }
   footer.site {
     max-width: 1080px;
@@ -155,7 +179,7 @@
 
 <header class="site">
   <h1>Workshop Logistics Portal</h1>
-  <p>Internal operations view &middot; read-only</p>
+  <p>Internal operations view &middot; read-only &middot; Last updated 9:30 AM</p>
 </header>
 
 <main>
@@ -173,6 +197,7 @@
     </table>
   </section>
 
+  <p class="section-label">Portal summary</p>
   <div class="cards">
     <div class="card"><div class="num">7</div><div class="lbl">Total items</div></div>
     <div class="card"><div class="num">3</div><div class="lbl">Ready</div></div>
@@ -190,11 +215,18 @@
 
   <p class="explainer">
     Exception rows include delayed items, attempted delivery, pending
-    confirmation, or items where ETA is close to the required time.
+    confirmation, or items that may affect the setup deadline.
   </p>
 
+  <p id="view-state" class="view-state"></p>
+
   <table class="items" id="logistics-items">
-    <caption>Logistics items</caption>
+    <caption>Logistics items <span class="pill">Read-only</span></caption>
+    <colgroup>
+      <col style="width:16%"><col style="width:9%"><col style="width:9%">
+      <col style="width:14%"><col style="width:13%"><col style="width:8%">
+      <col style="width:7%"><col style="width:10%"><col style="width:14%">
+    </colgroup>
     <thead>
       <tr>
         <th>Item</th><th>Type</th><th>Ref</th><th>Status</th>
@@ -269,14 +301,14 @@
     </dl>
   </section>
 
-  <div class="callout" role="note">
-    Do not copy delivery addresses, phone numbers, or supplier contact details
-    into team updates.
+  <div class="note" role="note">
+    Privacy reminder: copy only the fields needed for review. Do not include
+    unnecessary contact, delivery, or supplier details in team updates.
   </div>
 </main>
 
 <footer class="site">
-  Fictional demo data &mdash; no real client, supplier, staff, address, or
+  Training demo data only. No real client, staff, supplier, address, or
   contact details.
 </footer>
 
@@ -302,20 +334,26 @@
       }
     }
 
-    function applyFilter(filter) {
+    var viewState = document.getElementById("view-state");
+
+    function applyFilter(filter, label) {
+      var visible = 0;
       rows.forEach(function (row) {
         var shouldHide = !matchesFilter(row, filter);
         row.hidden = shouldHide;
         row.classList.toggle("is-hidden", shouldHide);
         row.setAttribute("aria-hidden", String(shouldHide));
+        if (!shouldHide) { visible++; }
       });
+      viewState.textContent =
+        "Showing: " + label + " · " + visible + (visible === 1 ? " item" : " items");
     }
 
     filterButtons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         filterButtons.forEach(function (b) { b.classList.remove("active"); });
         btn.classList.add("active");
-        applyFilter(btn.dataset.filter);
+        applyFilter(btn.dataset.filter, btn.textContent.trim());
       });
     });
 
@@ -356,7 +394,7 @@
     });
 
     // Initial state: all rows visible, HDMI adapter pre-selected in details.
-    applyFilter("all");
+    applyFilter("all", "All items");
     showDetails(document.getElementById("row-hdmi-adapter"));
   })();
 </script>
