@@ -168,7 +168,7 @@
         <tr><th>Workshop start</th><td>1:00 PM</td></tr>
         <tr><th>Setup deadline</th><td>12:00 PM</td></tr>
         <tr><th>Portal last updated</th><td>9:30 AM</td></tr>
-        <tr><th>Coordinator</th><td>Workshop coordinator (role)</td></tr>
+        <tr><th>Coordinator</th><td>Workshop coordinator</td></tr>
       </tbody>
     </table>
   </section>
@@ -185,7 +185,7 @@
     <button id="filter-ready" class="filter-button" data-filter="ready">Ready only</button>
     <button id="filter-exceptions" class="filter-button" data-filter="exceptions">Exceptions only</button>
     <button id="filter-high-impact" class="filter-button" data-filter="high-impact">High impact only</button>
-    <button id="filter-due-before-setup" class="filter-button" data-filter="due-before-setup">Due before setup</button>
+    <button id="filter-at-risk" class="filter-button" data-filter="at-risk">At risk for setup</button>
   </div>
 
   <p class="explainer">
@@ -296,7 +296,7 @@
         case "ready": return row.classList.contains("status-ready");
         case "exceptions": return row.classList.contains("status-exception");
         case "high-impact": return row.classList.contains("impact-high");
-        case "due-before-setup": return row.classList.contains("due-risk");
+        case "at-risk": return row.classList.contains("due-risk");
         case "all":
         default: return true;
       }

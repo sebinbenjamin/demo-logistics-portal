@@ -74,7 +74,7 @@ Column ownership — the heart of the lesson:
 | ---------------------- | ------------------------- |
 | Run ID                 | Axiom or prefilled/manual |
 | Checked at             | Axiom or manual           |
-| Source page            | Axiom or manual           |
+| Source page            | Fixed value, or Axiom/manual |
 | Item                   | Axiom                     |
 | Type                   | Axiom                     |
 | Ref                    | Axiom                     |
@@ -91,6 +91,11 @@ Column ownership — the heart of the lesson:
 | Reviewer notes         | Human                     |
 
 > Axiom writes the evidence columns. A human fills the judgement columns.
+
+**Two distinct time values.** "Checked at" is the *automation run time* — when
+Axiom read the portal — while the portal's own "Portal last updated: 9:30 AM" is
+a separate piece of evidence about the source. Keep them in different columns; a
+fixed value for "Checked at" is fine for the live demo.
 
 ### Axiom write settings
 
@@ -111,6 +116,9 @@ Column ownership — the heart of the lesson:
 4. Write the extracted rows to the `Current exceptions` tab of the Google Sheet.
 5. **Stop.** A human reviews the evidence, adds owners/actions, marks
    "Ready for team update?", and sends any team update manually.
+
+The bot flow never touches the item-details panel on the portal — that panel is
+for the trainer to walk through human review, not part of the automation.
 
 ## Framing for the session
 
